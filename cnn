@@ -1,0 +1,65 @@
+# --- Neural Network with Keras: Step-by-Step ---
+
+# 1️⃣ Import Libraries
+import pandas as pd
+from keras.models import Sequential
+from keras.layers import Dense
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
+# 2️⃣ Load & Prepare Data
+data = pd.read_csv('pima-indians-diabetes.csv')
+X = data.iloc[:, :8]
+y = data.iloc[:, 8]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=0)
+
+# 3️⃣ Build the Model
+model = Sequential([
+    Dense(8, activation='relu', input_shape=(X_train.shape[1],)),
+    Dense(8, activation='relu'),
+    Dense(1, activation='sigmoid')
+])
+
+# 4️⃣ Compile the Model
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# 5️⃣ Train the Model
+history = model.fit(
+    X_train, y_train,
+    epochs=20,
+    batch_size=100,
+    validation_data=(X_test, y_test),
+    verbose=1
+)
+
+# 6️⃣ Evaluate the Model
+train_loss, train_acc = model.evaluate(X_train, y_train, verbose=0)
+test_loss, test_acc = model.evaluate(X_test, y_test, verbose=0)
+print(f"\n✅ Training Accuracy: {train_acc * 100:.2f}%")
+print(f"✅ Test Accuracy: {test_acc * 100:.2f}%")
+
+# 7️⃣ Predict
+predictions = model.predict(X_test)
+print("\n🔹 Sample Predictions (first 10):")
+for pred in predictions[:10]:
+    print(f"{pred[0]:.4f}")
+
+# 📊 Plot: Loss
+plt.figure(figsize=(7, 4))
+plt.plot(history.history['loss'], 'r--', label='Training Loss')
+plt.plot(history.history['val_loss'], 'b-', label='Validation Loss')
+plt.title('Training vs Validation Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+# 📈 Plot: Accuracy
+plt.figure(figsize=(7, 4))
+plt.plot(history.history['accuracy'], 'r--', label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], 'b-', label='Validation Accuracy')
+plt.title('Training vs Validation Accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
