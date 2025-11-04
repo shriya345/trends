@@ -1,0 +1,75 @@
+# Demonstration of Sigmoid Activation Function using Perceptron
+
+import numpy as np
+
+# Perceptron function with sigmoid activation
+def perceptron(weight, bias, x):
+    model = np.dot(x, weight) + bias
+    logit = 1 / (1 + np.exp(-model))   # Sigmoid activation
+    return np.round(logit)             # Round to 0 or 1 for logic output
+
+# Function to compute output for a specific logic gate
+def compute(logictype, weightdict, dataset):
+    weights = np.array([weightdict[logictype][w] for w in weightdict[logictype].keys()])
+    output = np.array([perceptron(weights, weightdict['bias'][logictype], val) for val in dataset])
+    return logictype, output
+
+def main():
+    # Logic gate weights and biases
+    logic = {
+        'logic_and':  {'w0': -0.1, 'w1': 0.2, 'w2': 0.2},
+        'logic_nand': {'w0': 0.6,  'w1': -0.8, 'w2': -0.8},
+        'bias': {
+            'logic_and': -0.2,
+            'logic_nand': 0.3
+        }
+    }
+
+    # Input dataset: [bias, input1, input2]
+    dataset = np.array([
+        [1, 0, 0],
+        [1, 0, 1],
+        [1, 1, 0],
+        [1, 1, 1]
+    ])
+
+    # Compute outputs for AND and NAND gates
+    logic_and = compute('logic_and', logic, dataset)
+    logic_nand = compute('logic_nand', logic, dataset)
+
+    # Display output in truth table format
+    def print_table(dataset, name, data):
+        print(f"\nLogic Function: {name[6:].upper()}")
+        print("X0\tX1\tX2\tY")
+        for inputs, output in zip(dataset, data):
+            print(f"{inputs[0]}\t{inputs[1]}\t{inputs[2]}\t{int(output)}")
+
+    # Print results for both gates
+    gates = [logic_and, logic_nand]
+    for g in gates:
+        print_table(dataset, *g)
+
+if __name__ == '__main__':
+    main()
+# Face Detection using OpenCV
+
+import cv2
+
+# Load the pre-trained face detection model
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
+# Read input image
+img = cv2.imread('people.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Detect faces
+faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+
+# Draw rectangles around detected faces
+for (x, y, w, h) in faces:
+    cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+# Display output
+cv2.imshow('Detected Faces', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
