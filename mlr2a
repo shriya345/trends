@@ -1,0 +1,57 @@
+# Step 1: Import libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Step 2: Load dataset
+data = pd.read_csv('student.csv')
+
+# Step 3: Define features and target
+math = data['Math'].values
+read = data['Reading'].values
+write = data['Writing'].values
+
+# Step 4: Visualize data in 3D
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(math, read, write, color='red')
+ax.set_xlabel('Math Score')
+ax.set_ylabel('Reading Score')
+ax.set_zlabel('Writing Score')
+plt.title('Student Performance Data')
+plt.show()
+
+# Step 5: Prepare data matrices
+m = len(math)
+X = np.column_stack((np.ones(m), math, read))  # [1, Math, Reading]
+Y = write
+
+# Step 6: Initialize coefficients and hyperparameters
+B = np.zeros(3)          # [b0, b1, b2]
+alpha = 0.0001
+iterations = 100000
+
+# Step 7: Define cost function
+def cost_function(X, Y, B):
+    m = len(Y)
+    return np.sum((X.dot(B) - Y) ** 2) / (2 * m)
+
+# Step 8: Gradient descent function
+def gradient_descent(X, Y, B, alpha, iterations):
+    m = len(Y)
+    cost_history = np.zeros(iterations)
+    for i in range(iterations):
+        h = X.dot(B)
+        gradient = X.T.dot(h - Y) / m
+        B = B - alpha * gradient
+        cost_history[i] = cost_function(X, Y, B)
+    return B, cost_history
+
+# Step 9: Train model
+newB, cost_history = gradient_descent(X, Y, B, alpha, iterations)
+
+# Step 10: Predict and evaluate
+Y_pred = X.dot(newB)
+r2 = 1 - (np.sum((Y - Y_pred) ** 2) / np.sum((Y - np.mean(Y)) ** 2))
+print("R² Score:", r2)
