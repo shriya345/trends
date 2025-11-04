@@ -1,0 +1,45 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# --- Load dataset ---
+# Assuming the dataset has columns: Head Size (in cm^3) and Brain Weight (in grams)
+data = pd.read_csv("headbrain.csv")
+
+# Extract variables
+X = data['Head Size(cm^3)'].values
+Y = data['Brain Weight(grams)'].values
+
+# --- Step 1: Calculate coefficients using least squares method ---
+mean_x = np.mean(X)
+mean_y = np.mean(Y)
+
+n = len(X)
+
+# Calculate slope (b1) and intercept (b0)
+num = np.sum((X - mean_x) * (Y - mean_y))
+den = np.sum((X - mean_x)**2)
+b1 = num / den
+b0 = mean_y - (b1 * mean_x)
+
+print(f"Slope (b1): {b1}")
+print(f"Intercept (b0): {b0}")
+
+# --- Step 2: Predict values ---
+Y_pred = b0 + b1 * X
+
+# --- Step 3: R^2 Score calculation ---
+ss_total = np.sum((Y - mean_y)**2)
+ss_res = np.sum((Y - Y_pred)**2)
+r2_score = 1 - (ss_res / ss_total)
+
+print(f"R² Score: {r2_score}")
+
+# --- Step 4: Plot the data points and regression line ---
+plt.scatter(X, Y, color='blue', label='Actual Data')
+plt.plot(X, Y_pred, color='red', label='Fitted Line')
+plt.xlabel('Head Size (cm^3)')
+plt.ylabel('Brain Weight (grams)')
+plt.title('Head Size vs Brain Weight (Linear Regression)')
+plt.legend()
+plt.show()
