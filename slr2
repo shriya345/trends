@@ -1,0 +1,41 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+
+# --- Load dataset ---
+# Assuming columns: 'area' and 'price'
+data = pd.read_csv("housing_prices_SLR.csv")
+
+# Independent and dependent variables
+X = data[['area']]  # must be 2D
+Y = data['price']
+
+# --- Step 1: Split data into training and test sets ---
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+
+# --- Step 2: Create and train model ---
+model = LinearRegression()
+model.fit(X_train, Y_train)
+
+# --- Step 3: Predict values ---
+Y_train_pred = model.predict(X_train)
+Y_test_pred = model.predict(X_test)
+
+# --- Step 4: R² scores ---
+r2_train = r2_score(Y_train, Y_train_pred)
+r2_test = r2_score(Y_test, Y_test_pred)
+
+print(f"R² Score (Training set): {r2_train}")
+print(f"R² Score (Test set): {r2_test}")
+
+# --- Step 5: Display all points with regression line ---
+plt.scatter(X, Y, color='blue', label='Actual Data')
+plt.plot(X, model.predict(X), color='red', label='Fitted Line')
+plt.xlabel('Area of the House')
+plt.ylabel('Price of the House')
+plt.title('Area vs Price (Linear Regression)')
+plt.legend()
+plt.show()
