@@ -1,0 +1,42 @@
+from keras.models import Sequential
+from keras.layers import Embedding, SimpleRNN, Dense
+from keras.datasets import imdb
+from keras.preprocessing import sequence
+from sklearn.metrics import classification_report
+
+# --- Load and preprocess data ---
+max_features = 10000   # number of unique words to consider
+maxlen = 500           # cut texts after this number of words
+
+print("Loading data...")
+(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
+x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
+x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
+
+# --- Build the RNN model ---
+model = Sequential([
+    Embedding(max_features, 32),
+    SimpleRNN(32),
+    Dense(1, activation='sigmoid')
+])
+
+model.compile(optimizer='rmsprop',
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
+
+# --- Train the model ---
+history = model.fit(
+    x_train, y_train,
+    epochs=10,
+    batch_size=128,
+    validation_split=0.2
+)
+
+# --- Evaluate on test data ---
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print(f"\nTest Accuracy: {test_acc:.4f}")
+
+# --- Classification report ---
+y_pred = (model.predict(x_test) > 0.5).astype("int32")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
