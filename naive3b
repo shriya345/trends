@@ -1,0 +1,44 @@
+# Naive Bayes Classification - Breast Cancer Dataset
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Step 1: Load and prepare data
+df = pd.read_csv("breast_cancer.csv")
+df = df.iloc[:, :-1]   # Remove last column if unnecessary
+
+# Step 2: Define features (X) and target (y)
+X = df.iloc[:, 2:].values
+y = df['diagnosis'].values
+
+# Step 3: Split data (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=500)
+
+# Step 4: Baseline model (predict all as 'B')
+baseline_pred = ["B"] * len(y_train)
+print("Baseline Accuracy:", accuracy_score(y_train, baseline_pred))
+print("\nBaseline Confusion Matrix:\n", confusion_matrix(y_train, baseline_pred))
+print("\nBaseline Classification Report:\n", classification_report(y_train, baseline_pred))
+
+# Step 5: Train Naive Bayes model
+nb_model = GaussianNB()
+nb_model.fit(X_train, y_train)
+
+# Step 6: Model Evaluation
+print("\nTraining Accuracy:", nb_model.score(X_train, y_train))
+print("Testing Accuracy:", nb_model.score(X_test, y_test))
+
+print("\nTraining Confusion Matrix:\n", confusion_matrix(y_train, nb_model.predict(X_train)))
+print("\nTesting Confusion Matrix:\n", confusion_matrix(y_test, nb_model.predict(X_test)))
+
+print("\nTraining Classification Report:\n", classification_report(y_train, nb_model.predict(X_train)))
+print("\nTesting Classification Report:\n", classification_report(y_test, nb_model.predict(X_test)))
+
+# Step 7: Threshold-based prediction example (optional)
+y_prob = nb_model.predict_proba(X_test)[:, 1]  # Probability of being 'M'
+test_pred = y_prob > 0.25  # Classify as malignant if prob > 0.25
+
+print("\nConfusion Matrix with threshold=0.25 (M vs B):\n", confusion_matrix(y_test == 'M', test_pred))
